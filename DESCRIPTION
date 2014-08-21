@@ -1,0 +1,17 @@
+Package: cppinfo
+Title: Extract type information from C++ sources
+Version: 0.1
+Authors@R: "Rich FitzJohn <rich.fitzjohn@gmail.com> [aut, cre]"
+Description: Extract type information from C++ using doxygen.
+    Eventually this might allow different backends such as gccxml and
+    libclang.
+Depends:
+    R (>= 3.1.1)
+License: BSD_2_clause + file LICENSE
+LazyData: true
+Imports:
+    R6 (>= 1.0.1.9001),
+    XML
+SystemRequirements: doxygen
+Suggests:
+    testthat
