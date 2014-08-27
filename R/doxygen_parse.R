@@ -10,39 +10,33 @@ doxygen_index <-
                     xmlRoot(xmlInternalTreeParse(file.path(self$path,
                                                            "index.xml")))
                 },
+                names=function() {
+                  xpath <- "/doxygenindex/compound[@kind = 'class']/name"
+                  set <- getNodeSet(self$xml, xpath)
+                  if (length(set) == 0) character(0) else sapply(set, xmlValue)
+                },
+                has_class=function(name) {
+                  fmt <- "/doxygenindex/compound[name='%s' and @kind='class']"
+                  xpath <- sprintf(fmt, name)
+                  length(getNodeSet(self$xml, xpath)) == 1
+                },
+                get_class_xml=function(name) {
+                  xpath <- sprintf("/doxygenindex/compound[name='%s']", name)
+                  nd <- getNode(self$xml, xpath)
+                  nd_file <- paste0(xmlGetAttr(nd, "refid"), ".xml")
+                  xmlRoot(xmlInternalTreeParse(file.path(self$path, nd_file)))
+                },
                 get_class=function(name) {
                   if (name %in% names(self$cache)) {
-                    self$cache[[name]]
+                    cl <- self$cache[[name]]
+                  } else if (self$has_class(name)) {
+                    self$cache[[name]] <- cl <-
+                      doxygen_process_class(self$get_class_xml(name))
                   } else {
-                    if (!doxygen_has_class(name, self)) {
-                      stop(sprintf("Class %s not found"))
-                    }
-                    cl_xml <- doxygen_get_class_xml(name, self)
-                    cl <- doxygen_process_class(cl_xml)
-                    self$cache[[name]] <- cl
-                    cl
+                    stop(sprintf("Class %s not found"))
                   }
+                  cl
                 }))
-
-doxygen_get_class <- function(name, index) {
-  doxygen_process_class(doxygen_get_class_xml(name, index))
-}
-
-doxygen_has_class <- function(name, index) {
-  xpath <- sprintf("/doxygenindex/compound[name='%s']", name)
-  length(getNodeSet(index$xml, xpath)) == 1
-}
-
-doxygen_get_class_xml <- function(name, index) {
-  xpath <- sprintf("/doxygenindex/compound[name='%s']", name)
-  nd <- getNode(index$xml, xpath)
-  nd_file <- paste0(xmlGetAttr(nd, "refid"), ".xml")
-  xmlRoot(xmlInternalTreeParse(file.path(index$path, nd_file)))
-}
-
-## Getting the table of contents is going to be a bit challenging as
-## there is no way of getting it without passing through all the xml
-## files.
 
 doxygen_process_class <- function(xml) {
   if (length(xml) != 1 && length(xml$compoundef) != 1) {
@@ -55,19 +49,12 @@ doxygen_process_class <- function(xml) {
 
   ret$template_info <- doxygen_template_info(xml, ret)
   
-  ## OK, going to have do the constructors separately?  Or treat them
-  ## as plain functions here?
   functions <- xpathApply(xml, "//memberdef[@kind='function']",
                           doxygen_process_method, ret)
 
-  ## In theory we could look for things that have the same name as the
-  ## class.  But in practice we can probably just get the things that
-  ## have no return value:
-  is_constructor <- sapply(functions, function(x) is.null(x$return_type))
-  constructors <- functions[is_constructor]
-
-  ret$constructors <- constructors
-  ret$methods <- functions[!is_constructor]
+  is_constructor <- sapply(functions, function(x) x$is_constructor())
+  ret$constructors <- functions[ is_constructor]
+  ret$methods      <- functions[!is_constructor]
 
   ret$fields <- xpathApply(xml, "//memberdef[@kind='variable']",
                            doxygen_process_field, ret)

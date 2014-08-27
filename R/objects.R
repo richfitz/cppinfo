@@ -26,7 +26,8 @@ cpp_method <-
             return_type=NULL,
             args=NULL,
             location=NULL,
-            parent=NULL))
+            parent=NULL,
+            is_constructor=function() is.null(self$return_type)))
 
 cpp_field <-
   R6Class("cpp_field",

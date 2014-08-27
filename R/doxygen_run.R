@@ -22,6 +22,7 @@ doxygen_run <- function(input, output) {
                GENERATE_LATEX="NO",
                GENERATE_XML="YES",
                EXTRACT_ALL="YES",
+               RECURSIVE="YES",
                OUTPUT_DIRECTORY=output,
                INPUT=paste(input, collapse=" "))
   str <- doxyfile_set_options(opts, str)
