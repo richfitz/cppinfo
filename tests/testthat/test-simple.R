@@ -2,7 +2,7 @@ idx_d <- idx_g <- idx_c <- NULL
 
 test_that("Can run commands", {
   idx_d <<- doxygen_run('src/test.cc', tempfile())
-  idx_g <<- gccxml_run('src/test.cc', tempfile())
+  # idx_g <<- gccxml_run('src/test.cc', tempfile())
   idx_c <<- libclang_run('src/test.cc')
 })
 
@@ -13,17 +13,17 @@ test_that("Expected contents found", {
   ## GCCXML misses the struct for the same reason.  Easy enough to fix.
   ## It also misses mypackage::pair1 because that's an uninstantiated
   ## template.
-  expect_that(idx_g$names(),
-              equals("mypackage::circle"))
+  ## expect_that(idx_g$names(),
+  ##             equals("mypackage::circle"))
   expect_that(idx_c$names(), throws_error("Not yet implemented"))
 
   expect_that(idx_d$has_class("mypackage::circle"), is_true())
   expect_that(idx_d$has_class("mypackage::pair1"), is_true())
   expect_that(idx_d$has_class("mypackage::foo"), is_false())
 
-  expect_that(idx_g$has_class("mypackage::circle"), is_true())
-  expect_that(idx_g$has_class("mypackage::pair1"), is_false())
-  expect_that(idx_g$has_class("mypackage::foo"), is_false())
+  ## expect_that(idx_g$has_class("mypackage::circle"), is_true())
+  ## expect_that(idx_g$has_class("mypackage::pair1"), is_false())
+  ## expect_that(idx_g$has_class("mypackage::foo"), is_false())
 
   expect_that(idx_c$has_class("mypackage::circle"), is_true())
   expect_that(idx_c$has_class("mypackage::pair1"), is_true())
@@ -32,7 +32,7 @@ test_that("Expected contents found", {
 
 ## Now, check the contents!
 test_that("Check circle", {
-  for (idx in c(idx_d, idx_g, idx_c)) {
+  for (idx in c(idx_d, idx_c)) {
     cl <- idx$get_class("mypackage::circle")
 
     expect_that(cl$name, equals("mypackage::circle"))
