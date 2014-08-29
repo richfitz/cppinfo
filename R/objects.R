@@ -37,6 +37,8 @@ cpp_field <-
             location=NULL,
             parent=NULL))
 
+## TODO: Worth adding something to indicate if this is a class or a
+## struct?  defined_as?
 cpp_class <-
   R6Class("cpp_class",
           public=list(

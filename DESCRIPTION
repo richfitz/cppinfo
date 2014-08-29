@@ -12,6 +12,8 @@ LazyData: true
 Imports:
     R6 (>= 1.0.1.9001),
     XML
-SystemRequirements: doxygen
+SystemRequirements: doxygen, gccxml, libclang, Python libclang
+  bindings (>= 3.4svn)
 Suggests:
+    rPython,
     testthat
