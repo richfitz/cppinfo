@@ -46,7 +46,7 @@ gccxml_process_class <- function(nd, xml) {
   ret <- cpp_class$new()
 
   ret$name <- xmlGetAttr(nd, "demangled")
-  ## Can't do anything about templates with gccxml unless their
+  ## Can't do anything about templates with gccxml unless they're
   ## instantiated, which is unlikely in a header file...
   ret$template_info <- NULL
 
@@ -83,7 +83,7 @@ gccxml_process_constructor <- function(nd, xml, parent) {
   ret <- cpp_method$new()
   ret$name <- parent$name
   ret$return_type <- NULL
-  ret$parent <- NULL
+  ret$parent <- parent
   ret$location <- gccxml_process_location(nd, xml)
   ret$args <- lapply(xmlChildren(nd), gccxml_process_arg, xml, ret)
   ret
