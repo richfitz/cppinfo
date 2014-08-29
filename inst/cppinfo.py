@@ -14,7 +14,7 @@ def set_library_file(filename):
 results = {}
 def r_libclang_run(filename, opts):
     key = os.path.abspath(filename)
-    results[key] = run_clang(filename, opts)
+    results[key] = libclang_run(filename, opts)
     return key
 
 def r_has_class(name, key):
@@ -25,7 +25,7 @@ def r_get_class(name, key):
     return cpp_class(cursor)
 
 # Distantly related to clang-ctags
-def run_clang(filename, opts):
+def libclang_run(filename, opts):
     index = clang.cindex.Index.create()
     tu = index.parse(filename, opts,
                      options=TranslationUnit.PARSE_SKIP_FUNCTION_BODIES)
@@ -70,7 +70,7 @@ def cpp_class(cursor):
             'location': cpp_location(cursor.location)}    
 
 def cpp_location(cursor):
-    return {'file': cursor.file.name,
+    return {'file': os.path.abspath(cursor.file.name),
             'line': cursor.line,
             'column': cursor.column}
 
@@ -79,9 +79,8 @@ def cpp_field(cursor):
             'type': cpp_type(cursor.type),
             'location': cpp_location(cursor.location)}
 
-## I really don't know if we want the fully qualified name here?
 def cpp_constructor(cursor):
-    return {'name': qualified_spelling(cursor),
+    return {'name': qualified_spelling(cursor.semantic_parent),
             'return_type': None,
             'location': cpp_location(cursor.location),
             'args': cpp_args(cursor)}

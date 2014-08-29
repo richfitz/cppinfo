@@ -1,12 +1,16 @@
-## There are an absolute ton of options here.  An interface for
-## passing these along would be nice.
-##
-## Unlike doxygen, which naturally does a whole directory at once,
-## this file is translation unit based.  So for now it's probably best
-## to assume that the input is a single header file.
+##' Run gccxml to collect up type information.
+##'
+##' There are an absolute ton of possible otions here, none of which
+##' are supported.
+##' @title Run GCCXML
+##' @param input Single filename to run on
+##' @param output Directory to leave output file (will be called
+##' \code{gcc.xml})
+##' @author Rich FitzJohn
+##' @export
 gccxml_run <- function(input, output) {
   dir.create(output, FALSE)
-  output_file <- file.path(output, "index.xml")
+  output_file <- file.path(output, "gcc.xml")
   system(sprintf("%s %s -fxml=%s", gccxml_path(), input, output_file))
   gccxml_index$new(output_file)
 }

@@ -50,7 +50,6 @@ gccxml_process_class <- function(nd, xml) {
   ## instantiated, which is unlikely in a header file...
   ret$template_info <- NULL
 
-
   members <- strsplit(xmlGetAttr(nd, "members"), " ", fixed=TRUE)[[1]]
   members_xml <- sapply(members, function(id)
                         getNode(xml, sprintf("/GCC_XML/*[@id='%s']", id)))
@@ -64,6 +63,9 @@ gccxml_process_class <- function(nd, xml) {
 
   ret$constructors <- lapply(unname(members_xml[members_type == "Constructor"]),
                              gccxml_process_constructor, xml, ret)
+  ## Look for default copy constructor:
+  keep <- !sapply(ret$constructors, gccxml_is_copy_constructor)
+  ret$constructors <- ret$constructors[keep]
 
   ## Operator methods need special treatment here.  That might also be
   ## the case in Doxygen too, actually.  Can set that up in the test
@@ -85,7 +87,7 @@ gccxml_process_constructor <- function(nd, xml, parent) {
   ret$return_type <- NULL
   ret$parent <- parent
   ret$location <- gccxml_process_location(nd, xml)
-  ret$args <- lapply(xmlChildren(nd), gccxml_process_arg, xml, ret)
+  ret$args <- unname(lapply(xmlChildren(nd), gccxml_process_arg, xml, ret))
   ret
 }
 
@@ -95,7 +97,7 @@ gccxml_process_method <- function(nd, xml, parent) {
   ret$return_type <- gccxml_process_type(xmlGetAttr(nd, "returns"), xml)
   ret$location <- gccxml_process_location(nd, xml)
   ret$parent <- parent
-  ret$args <- lapply(xmlChildren(nd), gccxml_process_arg, xml, ret)
+  ret$args <- unname(lapply(xmlChildren(nd), gccxml_process_arg, xml, ret))
   ## NOTE: Can add if this is public (Doxygen always public by default)
   ret
 }
@@ -144,4 +146,8 @@ gccxml_process_type <- function(id, xml) {
   } else {
     stop("fixme")
   }
+}
+
+gccxml_is_copy_constructor <- function(x) {
+  length(x$args) == 1 && x$args[[1]]$type == paste(x$name, "const&")
 }

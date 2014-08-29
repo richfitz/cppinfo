@@ -10,6 +10,8 @@ doxygen_index <-
                     xmlRoot(xmlInternalTreeParse(file.path(self$path,
                                                            "index.xml")))
                 },
+                ## TODO: Need to get @kind = 'class' or @kind =
+                ## 'struct' here so that we can get structs.
                 names=function() {
                   xpath <- "/doxygenindex/compound[@kind = 'class']/name"
                   set <- getNodeSet(self$xml, xpath)
@@ -90,9 +92,12 @@ doxygen_process_method <- function(xml, parent) {
   ret$name        <- getNodeValue(xml, "./name")
   ret$return_type <- getNodeValue(xml, "./type")
   if (length(ret$return_type) == 0 || ret$return_type == "") {
+    ## This is a constructor - use the fully qualified name
+    ret$name <- parent$name
     ret$return_type <- NULL
   }
-  ret$location    <- doxygen_process_location(xml)
+  ## TODO: This is broken.
+  ret$location    <- doxygen_process_location(getNode(xml, "./location"))
   ret$parent      <- parent
   ret$args <- xpathApply(xml, "./param", doxygen_process_arg, ret)
   ret
@@ -102,7 +107,7 @@ doxygen_process_field <- function(xml, parent) {
   ret <- cpp_field$new()
   ret$name     <- getNodeValue(xml, "./name")
   ret$type     <- getNodeValue(xml, "./type")
-  ret$location <- doxygen_process_location(xml)
+  ret$location <- doxygen_process_location(getNode(xml, "./location"))
   ret$parent   <- parent
   ret
 }
@@ -120,10 +125,7 @@ doxygen_process_location <- function(xml) {
   ret <- cpp_location$new()
   tmp <- as.list(xmlAttrs(xml))
   ret$file      <- tmp$file
-  ret$bodyfile  <- tmp$bodyfile
   ret$line      <- as.integer(tmp$line)
   ret$column    <- as.integer(tmp$column)
-  ret$bodystart <- as.integer(tmp$bodystart)
-  ret$bodyend   <- as.integer(tmp$bodyend)
   ret
 }

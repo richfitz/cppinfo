@@ -5,11 +5,8 @@ cpp_location <-
   R6Class("cpp_location",
           public=list(
             file=NULL,
-            bodyfile=NULL,
             line=NULL,
-            column=NULL,
-            bodystart=NULL,
-            bodyend=NULL))
+            column=NULL))
 
 cpp_arg <-
   R6Class("cpp_arg",
