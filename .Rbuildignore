@@ -4,3 +4,4 @@ ignore/
 inst/cppinfo.pyc
 tests/testthat/src/test.s
 tests/testthat/testExamples
+Makefile

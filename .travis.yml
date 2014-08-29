@@ -4,7 +4,7 @@ language: c
 
 before_install:
   - sudo apt-get install gccxml doxygen libclang-dev
-  - git clone https://github.com/trolldbois/python-clang && cd python-clang && sudo python setup.py install && cd ..
+  - git clone https://github.com/trolldbois/python-clang && cd python-clang && sudo python setup.py install && cd .. && sudo rm -rf python-clang
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
